@@ -1,4 +1,4 @@
-</php
+<?php
 
 namespace douggonsouza\downloads;
 
@@ -8,18 +8,29 @@ abstract class upload
 	const TYPES_ALL = 'all';
 	const TYPES_TXT = 'txt';
 
-    static public $listTypesImg = array(
-        'TYPE_JPG' => 'jpg',
-        'TYPE_JPEG' => 'jpeg',
-        'TYPE_PNG' => 'png',
-        'TYPE_GIF' => 'gif'
-    );
+	const TYPE_JPG = 'jpg';
+	const TYPE_JPEG = 'jpeg';
+	const TYPE_PNG = 'png';
+	const TYPE_GIF = 'gif';
+	const TYPE_BMP = 'bmp';
 
-    static public $listTypesTxt = array(
-        'TYPE_TXT' => 'txt',
-        'TYPE_DOC' => 'doc',
-        'TYPE_DOCX' => 'docx',
-        'TYPE_PDF' => 'pdf',
+	const TYPE_TXT = 'txt';
+	const TYPE_DOC = 'doc';
+	const TYPE_DOCX = 'docx';
+	const TYPE_PDF = 'pdf';
+	const TYPE_CSV = 'csv';
+
+    static public $listTypes = array(
+        self::TYPE_TXT => self::TYPES_TXT,
+		self::TYPE_DOC => self::TYPES_TXT,
+		self::TYPE_DOCX => self::TYPES_TXT,
+		self::TYPE_PDF => self::TYPES_TXT,
+		self::TYPE_CSV => self::TYPES_TXT,
+		self::TYPE_JPG => self::TYPES_IMG,
+		self::TYPE_JPEG => self::TYPES_IMG,
+		self::TYPE_PNG => self::TYPES_IMG,
+		self::TYPE_GIF => self::TYPES_IMG,
+		self::TYPE_BMP => self::TYPES_IMG
     );
 
 	public $pasta          = '';
@@ -33,16 +44,15 @@ abstract class upload
 
 	private function autoName($type = null, $indice = null)
 	{
-		if(isset($type) && strlen($type) > 0){
-            return time().'_'.$indice.'.'.$type;
+		if(!isset($type) || empty($type)){
+            return null;
         }
 
-		return NULL;
+		return time().$indice.'.'.$type;
 	}
 
 	public function save($pasta)
 	{
-		<!-- $folder = $_ENV['FOLDERUPLOAD']; -->
 		$this->setPasta($pasta);
 
         // pasta existe no sistema
@@ -76,7 +86,7 @@ abstract class upload
 			}
 
 			//TIPO VálIDO
-			if(!$this->tipoValido($tp)){
+			if(!$this->validType($tp)){
 				$arq = array('status' => 'false','mensagem' => "Erro na validade do tipo de arquivo.");
 				$this->setFiles($arq, $input);
 				continue;
@@ -106,7 +116,7 @@ abstract class upload
 		return $this->getFiles();
 	}
 
-	private function tipoValido($ext)
+	private function validType($ext)
 	{
 		if(!isset($ext) || empty($ext)){
 			return false;
@@ -124,33 +134,51 @@ abstract class upload
 
 		return false;
 	}
-
-	public function setType($type)
+	
+	/**
+	 * getTipo
+	 *
+	 * @return void
+	 */
+	public function getTipo()
+	{
+		return $this->tipo;
+	}
+	
+	/**
+	 * setTipo
+	 *
+	 * @param  mixed $type
+	 * @return void
+	 */
+	public function setTipo($type)
 	{
 		// inicia tipo
-		$this->tipo = $this->defineType($type);
+		if(isset($type) && !empty($type)){
+			$this->tipo = $type;
+		}
+		
+		$this->this;
 	}
-
+	
+	/**
+	 * defineType
+	 *
+	 * @param  mixed $type
+	 * @return void
+	 */
 	private function defineType($type)
 	{
 		// inicia tipo
-		$tipos = null;
-		switch($type){
-			case "jpg": $tipos  = self::TYPES_IMG; break;
-			case "jpeg": $tipos = self::TYPES_IMG; break;
-			case "gif": $tipos  = self::TYPES_IMG; break;
-			case "bmp": $tipos  = self::TYPES_IMG; break;
-			case "png": $tipos  = self::TYPES_IMG; break;
-			case "wmf": $tipos  = self::TYPES_IMG; break;
-			case "txt": $tipos  = self::TYPES_TXT; break;
-            case "doc": $tipos  = self::TYPES_TXT; break;
-            case "docx": $tipos  = self::TYPES_TXT; break;
-            case "pdf": $tipos  = self::TYPES_TXT; break;
-			case "csv": $tipos  = self::TYPES_TXT; break;
-			default: $tipos = null; break;
+		if(!isset($type) || empty($type)){
+			return null;
 		}
 
-		return $tipos;
+		if(array_key_exists($type, self::$listTypes)){
+			return self::$listTypes[$type];
+		};
+		
+		return null;
 	}
 	
 
@@ -170,7 +198,9 @@ abstract class upload
 	public function setPasta($pasta)
 	{
 		if(isset($pasta) && !empty($pasta)){
-			$this->pasta = $pasta;
+			if (file_exists($pasta)) {
+				$this->pasta = $pasta;
+			}
 		}
 		return $this;
 	}
