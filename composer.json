@@ -1,0 +1,19 @@
+{
+    "name": "douggonsouza/downloads",
+    "description": "Auxílio no download de arquivos",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "douggonsouza\\downloads\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Douglas G. de Souza",
+            "email": "douggonsouza@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
